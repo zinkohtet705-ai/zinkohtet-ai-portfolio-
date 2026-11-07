@@ -1,11 +1,17 @@
-def respond(message: str) -> str:
-    """Return a safe placeholder response.
+from assistant.client import ask_model
 
-    Future model and tool integrations must be explicit opt-ins.
-    """
-    if not message.strip():
+def respond(message: str) -> str:
+    """Respond using the optional OpenAI integration, with a safe fallback."""
+    cleaned = message.strip()
+    if not cleaned:
         return "Please enter a message."
+    try:
+        answer = ask_model(cleaned)
+        if answer:
+            return answer
+    except Exception as exc:
+        return f"AI service error: {exc}"
     return (
-        "I received your message. The local assistant starter is running; "
-        "external model and tool integrations are not enabled yet."
+        "The local assistant is running, but AI integration is not configured. "
+        "Add OPENAI_API_KEY to your local .env file to enable it."
     )
